@@ -48,12 +48,7 @@
       template:
         src: "files/apache.conf.j2"
         dest: "/etc/apache2/sites-available/testwordpress.conf"
-
-  #  - name: Enable rewrite module
-  #    shell: /usr/sbin/a2enmod rewrite
-  #    notify: Reload Apache
-  #    tags: [ apache ]
-
+             
     - name: Enable new site
       shell: /usr/sbin/a2ensite testwordpress.conf
       
@@ -75,37 +70,32 @@
         proto: tcp
 
   # WordPress Configuration
-  #  - name: Download and unpack latest WordPress
-  #    unarchive:
-  #      src: https://wordpress.org/latest.tar.gz
-  #      dest: "/var/www/{{ http_host }}"
-  #      remote_src: yes
-  #      creates: "/var/www/{{ http_host }}/wordpress"
-  #    tags: [ wordpress ]
-
-  #  - name: Set ownership
-  #    file:
-  #      path: "/var/www/{{ http_host }}"
-  #      state: directory
-  #      recurse: yes
-  #      owner: www-data
-  #      group: www-data
-  #    tags: [ wordpress ]
-
-  #  - name: Set permissions for directories
-  #    shell: "/usr/bin/find /var/www/{{ http_host }}/wordpress/ -type d -exec chmod 750 {} \\;"
-  #    tags: [ wordpress ]
-
-  #  - name: Set permissions for files
-  #    shell: "/usr/bin/find /var/www/{{ http_host }}/wordpress/ -type f -exec chmod 640 {} \\;"
-  #    tags: [ wordpress ]
-
-  #  - name: Set up wp-config
-  #    template:
-  #      src: "files/wp-config.php.j2"
-  #      dest: "/var/www/{{ http_host }}/wordpress/wp-config.php"
-  #    tags: [ wordpress ]
-
+    - name: Download and unpack latest WordPress
+      unarchive:
+        src: https://wordpress.org/latest.tar.gz
+        dest: "/var/www/testwordpress"
+        remote_src: yes
+        creates: "/var/www/testwordpress/wordpress"
+      
+    - name: Set ownership for the untarred Wordpress files
+      file:
+        path: "/var/www/testwordpress"
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+      
+    - name: Set permissions for Wordpress directories
+      shell: "/usr/bin/find /var/www/testwordpress/wordpress/ -type d -exec chmod 750 {} \\;"
+      
+    - name: Set permissions for Wordpress files
+      shell: "/usr/bin/find /var/www/testwordpress/wordpress/ -type f -exec chmod 640 {} \\;"
+      
+    - name: Push wp-config
+      template:
+        src: "files/wp-config.php.j2"
+        dest: "/var/www/testwordpress/wordpress/wp-config.php"
+      
   # Apache Configuration
   #  - name: Create document root
   #    file:
